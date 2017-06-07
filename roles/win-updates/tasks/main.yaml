@@ -1,20 +1,5 @@
 #TODO: split out variables
 #TODO: service checks
-- name: check for windows updates
-  win_updates:
-    category_names:
-    - SecurityUpdates
-    - CriticalUpdates
-    - UpdateRollups
-    - Updates
-    - DefinitionUpdates
-    - ServicePacks
-    state: searched
-  register: search_results
-  ignore_errors: True
-  changed_when: (search_results.error is defined and search_results.error == "A reboot is required before more updates can be installed.") or 
-                (search_results.found_update_count is defined and search_results.found_update_count > 0) or 
-                (search_results.reboot_required is defined and search_results.reboot_required == True)
 - name: ensure windows updates are current
   win_updates:
     category_names:
