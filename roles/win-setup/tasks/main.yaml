@@ -1,0 +1,14 @@
+---
+- hosts: unconfigured
+  tasks:
+  - name: configure ansible user
+    win_user:
+      name: {{ ansible_user }}
+      fullname: {{ ansible_user_fname }}
+      password: {{ ansible_pw }}
+      password_expired: no
+      password_never_expires: yes
+      user_cannot_change_password: no
+      state: present
+      groups:
+        - {{ ansible_user_group }}

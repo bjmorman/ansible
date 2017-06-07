@@ -1,0 +1,68 @@
+#TODO: split out variables
+#TODO: service checks
+- name: check for windows updates
+  win_updates:
+    category_names:
+    - SecurityUpdates
+    - CriticalUpdates
+    - UpdateRollups
+    - Updates
+    - DefinitionUpdates
+    - ServicePacks
+    state: searched
+  register: search_results
+  ignore_errors: True
+  changed_when: (search_results.error is defined and search_results.error == "A reboot is required before more updates can be installed.") or 
+                (search_results.found_update_count is defined and search_results.found_update_count > 0) or 
+                (search_results.reboot_required is defined and search_results.reboot_required == True)
+- name: ensure windows updates are current
+  win_updates:
+    category_names:
+    - SecurityUpdates
+    - CriticalUpdates
+    - UpdateRollups
+    - Updates
+    - DefinitionUpdates
+    - ServicePacks
+    state: installed
+  register: install_results
+  ignore_errors: True
+  changed_when: (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.") or 
+                (install_results|changed)
+  failed_when: 
+  - install_results.failed is defined
+  - install_results.failed == True
+  - install_results.reboot_required is defined
+  - install_results.reboot_required == False
+- name: display number of installed updates
+  debug:
+    msg: "Installed {{ install_results.found_update_count }} updates."
+  when: 
+  - install_results.found_update_count is defined
+  - install_results.found_update_count > 0
+ - name: display if a reboot is necessary
+   set_fact:
+     bogus_fact: True
+   when: (install_results.reboot_required is defined and install_results.reboot_required == True) or 
+         (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.")
+   changed_when: (install_results.reboot_required is defined and install_results.reboot_required == True) or 
+                  (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.")
+- name: reboot windows
+  win_reboot:
+    shutdown_timeout_sec: 1200
+    reboot_timeout_sec: 1200
+    test_command: whoami
+  when: (install_results.reboot_required is defined and install_results.reboot_required == True and reboot_host == True) or 
+        (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed." and reboot_host == True)
+- name: ensure all relevant services are started
+  win_shell: "(Get-Service {{ item }}).Status"
+  register: svc_status
+  with_items:
+  - "WUAUSVC"
+  - "FTPSVC"
+  - "MSSQLSERVER"
+  - "SCHEDULER"
+  - "W3SVC"
+- name: debug this stuff
+  debug:
+    msg: svc_status  
