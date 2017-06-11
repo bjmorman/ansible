@@ -1,0 +1,4 @@
+host_services_defaults:
+- "APPASSUREAGENT"
+- "TERMSERVICE"
+- "VSS"

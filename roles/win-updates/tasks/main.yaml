@@ -31,10 +31,3 @@
     test_command: whoami
   when: (install_results.reboot_required is defined and install_results.reboot_required == True and reboot_host == True) or
         (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed." and reboot_host == True)
-- name: ensure all relevant services are started
-  win_service:
-    name: "{{ item }}"
-    state: started
-  with_items:
-  - "{{ host_services }}"
-  - "{{ host_services_defaults }}"

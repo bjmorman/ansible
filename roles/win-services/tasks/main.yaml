@@ -1,0 +1,7 @@
+- name: ensure all relevant services are started
+  win_service:
+    name: "{{ item }}"
+    state: started
+  with_items:
+  - "{{ host_services }}"
+  - "{{ host_services_defaults }}"
