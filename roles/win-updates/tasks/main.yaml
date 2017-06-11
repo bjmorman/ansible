@@ -1,14 +1,6 @@
-#TODO: split out variables
-#TODO: service checks
 - name: ensure windows updates are current
   win_updates:
-    category_names:
-    - SecurityUpdates
-    - CriticalUpdates
-    - UpdateRollups
-    - Updates
-    - DefinitionUpdates
-    - ServicePacks
+    category_names: "{{ update_categories }}"
     state: installed
   register: install_results
   ignore_errors: True
@@ -22,32 +14,27 @@
 - name: display number of installed updates
   debug:
     msg: "Installed {{ install_results.found_update_count }} updates."
-  when: 
+  when:
   - install_results.found_update_count is defined
   - install_results.found_update_count > 0
- - name: display if a reboot is necessary
-   set_fact:
-     bogus_fact: True
-   when: (install_results.reboot_required is defined and install_results.reboot_required == True) or 
-         (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.")
-   changed_when: (install_results.reboot_required is defined and install_results.reboot_required == True) or 
+- name: display if a reboot is necessary
+  set_fact:
+    bogus_fact: True
+  when: (install_results.reboot_required is defined and install_results.reboot_required == True) or
+        (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.")
+  changed_when: (install_results.reboot_required is defined and install_results.reboot_required == True) or
                   (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.")
 - name: reboot windows
   win_reboot:
-    shutdown_timeout_sec: 1200
-    reboot_timeout_sec: 1200
+    shutdown_timeout_sec: "{{ shutdown_timeout }}"
+    reboot_timeout_sec: "{{ reboot_timeout }}"
     test_command: whoami
-  when: (install_results.reboot_required is defined and install_results.reboot_required == True and reboot_host == True) or 
+  when: (install_results.reboot_required is defined and install_results.reboot_required == True and reboot_host == True) or
         (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed." and reboot_host == True)
 - name: ensure all relevant services are started
-  win_shell: "(Get-Service {{ item }}).Status"
-  register: svc_status
+  win_service:
+    name: "{{ item }}"
+    state: started
   with_items:
-  - "WUAUSVC"
-  - "FTPSVC"
-  - "MSSQLSERVER"
-  - "SCHEDULER"
-  - "W3SVC"
-- name: debug this stuff
-  debug:
-    msg: svc_status  
+  - "{{ host_services }}"
+  - "{{ host_services_defaults }}"
