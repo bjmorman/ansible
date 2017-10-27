@@ -1,0 +1,4 @@
+disable_sensu_checks: true     # silences host in sensu
+configure_windows_base: false  # installs chocolatey and other base package/configs
+apply_windows_updates: true    # installs windows updates and reboots
+verify_services: false         # will start critical services on each host, if defined in host_vars

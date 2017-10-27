@@ -1,0 +1,9 @@
+sensu_silence_url: "http:/fqdn:4567/silenced"
+sensu_client_datacenter: "Datacenter Name"
+sensu_silence_submitter: "user.name"
+sensu_silence_expire_on_resolve: false
+sensu_silence_expire: 9600
+sensu_silence_description: "Silence description here."
+sensu_silence_validate_certs: no
+sensu_silence_submit_timeout: 10
+sensu_silence_status_code: 201

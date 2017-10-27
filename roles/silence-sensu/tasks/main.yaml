@@ -1,0 +1,20 @@
+- name: Silence sensu client
+  uri:
+    url: "{{ sensu_silence_url }}"
+    method: POST
+    headers:
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      subscription: "client:{{ ansible_nodename }}"
+      dc: "{{ sensu_client_datacenter }}"
+      creator: " {{ sensu_silence_submitter }}"
+      expire_on_resolve: "{{ sensu_silence_expire_on_resolve }}"
+      expire: "{{ sensu_silence_expire }}"
+      reason: "{{ sensu_silence_description }}"
+    validate_certs: "{{ sensu_silence_validate_certs }}"
+    timeout: "{{ sensu_silence_submit_timeout }}"
+    status_code: "{{ sensu_silence_status_code }}"
+  delegate_to: 127.0.0.1
+  tags:
+    - silence

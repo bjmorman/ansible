@@ -11,12 +11,14 @@
   - install_results.failed == True
   - install_results.reboot_required is defined
   - install_results.reboot_required == False
+
 - name: display number of installed updates
   debug:
     msg: "Installed {{ install_results.found_update_count }} updates."
   when:
   - install_results.found_update_count is defined
   - install_results.found_update_count > 0
+
 - name: display if a reboot is necessary
   set_fact:
     bogus_fact: True
@@ -24,6 +26,7 @@
         (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.")
   changed_when: (install_results.reboot_required is defined and install_results.reboot_required == True) or
                   (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.")
+
 - name: reboot windows
   win_reboot:
     shutdown_timeout_sec: "{{ shutdown_timeout }}"
