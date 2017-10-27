@@ -3,5 +3,5 @@
     name: "{{ item }}"
     state: started
   with_items:
-  - "{{ host_services }}"
-  - "{{ host_services_defaults }}"
+  - "{{ win_services_host_specific }}"
+  - "{{ win_services_defaults }}"
