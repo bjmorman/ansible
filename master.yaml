@@ -1,11 +1,11 @@
 ---
-hosts: all
+- hosts: all
 
-vars_files:
-- ./config.yaml
+  vars_files:
+  - ./config.yaml
 
-roles:
-- { role: win-setup, when: configure_windows_base }
-- { role: silence-sensu, when: disable_sensu_checks }
-- { role: win-updates, when: apply_windows_updates }
-- { role: win-services, when: verify_services }
+  roles:
+  - { role: win-setup, when: win_setup }
+  - { role: silence-sensu, when: sensu_silence }
+  - { role: win-updates, when: win_update }
+  - { role: win-services, when: win_services }

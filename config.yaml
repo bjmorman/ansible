@@ -1,4 +1,35 @@
-disable_sensu_checks: true     # silences host in sensu
-configure_windows_base: false  # installs chocolatey and other base package/configs
-apply_windows_updates: true    # installs windows updates and reboots
-verify_services: false         # will start critical services on each host, if defined in host_vars
+
+# silence-sensu variables
+sensu_silence: false                                       # runs sensu-silence role; silences host in sensu
+sensu_silence_url: "http:/fqdn:4567/silenced"
+sensu_client_datacenter: "Datacenter Name"
+sensu_silence_submitter: "user.name"
+sensu_silence_expire_on_resolve: false
+sensu_silence_expire: 9600
+sensu_silence_description: "Silence description here."
+sensu_silence_validate_certs: no
+sensu_silence_submit_timeout: 10
+sensu_silence_status_code: 201
+
+# win-setup variables
+win_setup: false                                           # runs win-setup role
+
+# win-update variables
+win_update: true                                           # runs win-updates role; installs windows updates
+win_update_reboot_host: true                               # reboot host (true/false) when doing updates
+win_update_categories:
+- SecurityUpdates
+- CriticalUpdates
+- UpdateRollups
+- Updates
+- DefinitionUpdates
+- ServicePacks
+
+win_update_shutdown_timeout: 1200
+win_update_reboot_timeout: 1200
+
+# win-services variables
+win_services: false                                        # runs win-services role; verifies/starts defined services
+win_services_defaults:
+- "TERMSERVICE"
+- "VSS"
