@@ -1,6 +1,6 @@
 - name: ensure windows updates are current
   win_updates:
-    category_names: "{{ update_categories }}"
+    category_names: "{{ win_update_categories }}"
     state: installed
   register: install_results
   ignore_errors: True
@@ -27,10 +27,28 @@
   changed_when: (install_results.reboot_required is defined and install_results.reboot_required == True) or
                   (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.")
 
-- name: reboot windows
+- name: reboot windows if not vagrant
   win_reboot:
-    shutdown_timeout_sec: "{{ win_update_shutdown_timeout }}"
-    reboot_timeout_sec: "{{ win_update_reboot_timeout }}"
+    shutdown_timeout: "{{ win_update_shutdown_timeout }}"
+    reboot_timeout: "{{ win_update_reboot_timeout }}"
+    msg: "{{ win_update_reboot_msg }}"
     test_command: whoami
-  when: (install_results.reboot_required is defined and install_results.reboot_required == True and win_update_reboot_host == True) or
+  when:
+  - (install_results.reboot_required is defined and install_results.reboot_required == True and win_update_reboot_host == True) or
         (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed." and win_update_reboot_host == True)
+  - not is_vagrant
+
+- name: reboot windows if vagrant
+  win_shell: Restart-Computer -Force
+  when:
+  - (install_results.reboot_required is defined and install_results.reboot_required == True and win_update_reboot_host == True) or
+        (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed." and win_update_reboot_host == True)
+  - is_vagrant
+
+- name: reboot delay if vagrant
+  pause:
+    seconds: "{{ win_update_vagrant_boot_delay }}"
+  when:
+  - (install_results.reboot_required is defined and install_results.reboot_required == True and win_update_reboot_host == True) or
+        (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed." and win_update_reboot_host == True)
+  - is_vagrant
