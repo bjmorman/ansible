@@ -1,5 +1,4 @@
 is_vagrant: true
-gather_timeout: 20
 
 # silence-sensu variables
 sensu_silence: false                                       # runs sensu-silence role; silences host in sensu
@@ -14,7 +13,7 @@ sensu_silence_submit_timeout: 10
 sensu_silence_status_code: 201
 
 # win-setup variables
-win_setup: false                                           # runs win-setup role
+win_setup: true                                            # runs win-setup role
 
 # win-update variables
 win_update: true                                           # runs win-updates role; installs windows updates
