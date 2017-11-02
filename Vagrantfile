@@ -12,8 +12,6 @@ Vagrant.configure("2") do |config|
       vbox.customize ["modifyvm", :id, "--cpus", 2]
     end
     win.vm.provision "ansible" do |ansible|
-#      ansible.become = true
-#      ansible.become_user = "administrator"
       ansible.raw_arguments = "--inventory=./hosts"
       ansible.playbook = "site.yaml"
     end

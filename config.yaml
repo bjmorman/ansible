@@ -1,23 +1,23 @@
-is_vagrant: true
+is_vagrant: true                                           # true if vagrant environment; affects how reboots occur
 
 # silence-sensu variables
-sensu_silence: false                                       # runs sensu-silence role; silences host in sensu
-sensu_silence_url: "http:/fqdn:4567/silenced"              # sensu silence url
-sensu_client_datacenter: "Datacenter Name"
+sensu_silence: true                                        # runs sensu-silence role; silences host in sensu
+sensu_silence_url: "http://url:4567/silenced"              # sensu silence url
+sensu_client_datacenter: "Datacenter"
 sensu_silence_submitter: "user.name"
 sensu_silence_expire_on_resolve: false
 sensu_silence_expire: 9600
-sensu_silence_description: "Silence description here."
+sensu_silence_description: "Patching and maintenance."
 sensu_silence_validate_certs: no
 sensu_silence_submit_timeout: 10
 sensu_silence_status_code: 201
 
 # win-setup variables
-win_setup: true                                            # runs win-setup role
+win_setup: false                                           # runs win-setup role
 
 # win-update variables
 win_update: true                                           # runs win-updates role; installs windows updates
-win_update_reboot_host: true                               # reboot host (true/false) when doing updates
+win_update_reboot_host: false                              # reboot host (true/false) when doing updates
 win_update_reboot_msg: "Reboot initiated by Ansible"       # message to display on host during reboot
 win_update_vagrant_boot_delay: 180                         # time delay waiting for vagrant reboot
 win_update_categories:
@@ -29,7 +29,6 @@ win_update_categories:
 - Tools
 - UpdateRollups
 - Updates
-
 win_update_shutdown_timeout: 1200
 win_update_reboot_timeout: 1200
 
