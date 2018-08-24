@@ -5,7 +5,7 @@
   - ./config.yaml
 
   roles:
-  - { role: win-setup, when: win_setup }
+  - { role: win_setup, when: win_setup }
   - { role: silence-sensu, when: sensu_silence }
-  - { role: win-updates, when: win_update }
-  - { role: win-services, when: win_services }
+  - { role: win_updates, when: win_update }
+  - { role: win_serices, when: win_services }
