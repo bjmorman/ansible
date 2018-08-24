@@ -1,12 +1,35 @@
+- name: search for and list updates
+  win_updates:
+    category_names: "{{ win_update_categories }}"
+    state: searched
+  register: pending_updates
+  when: win_update_list_updates_only == True
+
+- name: ensure pending_updates directory exists
+  local_action:
+    module: file
+    path: ~/pending_updates
+    state: directory
+  when:
+  - win_update_list_updates_only == True
+  - pending_updates is defined
+
+- name: save pending updates to json
+  local_action: copy content={{ pending_updates }} dest=~/pending_updates/{{ inventory_hostname }}.json
+  when:
+  - win_update_list_updates_only == True
+  - pending_updates is defined
+
 - name: ensure windows updates are current
   win_updates:
     category_names: "{{ win_update_categories }}"
     state: installed
   register: install_results
   ignore_errors: True
-  changed_when: (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.") or 
-                (install_results|changed)
-  failed_when: 
+  when: win_update_list_updates_only == False
+  changed_when: (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.") or
+                (install_results is changed)
+  failed_when:
   - install_results.failed is defined
   - install_results.failed == True
   - install_results.reboot_required is defined
@@ -18,14 +41,17 @@
   when:
   - install_results.found_update_count is defined
   - install_results.found_update_count > 0
+  - win_update_list_updates_only == False
 
 - name: display if a reboot is necessary
   set_fact:
     bogus_fact: True
-  when: (install_results.reboot_required is defined and install_results.reboot_required == True) or
-        (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.")
+  when:
+  - (install_results.reboot_required is defined and install_results.reboot_required == True and win_update_reboot_host == True) or
+        (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed." and win_update_reboot_host == True)
+  - win_update_list_updates_only == False
   changed_when: (install_results.reboot_required is defined and install_results.reboot_required == True) or
-                  (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed.")
+                  (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed." and win_update_reboot_host == True)
 
 - name: reboot windows if not vagrant
   win_reboot:
@@ -34,15 +60,19 @@
     msg: "{{ win_update_reboot_msg }}"
     test_command: whoami
   when:
+  when:
   - (install_results.reboot_required is defined and install_results.reboot_required == True and win_update_reboot_host == True) or
         (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed." and win_update_reboot_host == True)
+  - win_update_list_updates_only == False
   - not is_vagrant
+
 
 - name: reboot windows if vagrant
   win_shell: Restart-Computer -Force
   when:
   - (install_results.reboot_required is defined and install_results.reboot_required == True and win_update_reboot_host == True) or
         (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed." and win_update_reboot_host == True)
+  - win_update_list_updates_only == False
   - is_vagrant
 
 - name: reboot delay if vagrant
@@ -51,4 +81,5 @@
   when:
   - (install_results.reboot_required is defined and install_results.reboot_required == True and win_update_reboot_host == True) or
         (install_results.error is defined and install_results.error == "A reboot is required before more updates can be installed." and win_update_reboot_host == True)
+  - win_update_list_updates_only == False
   - is_vagrant

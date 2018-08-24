@@ -31,6 +31,7 @@ win_update_categories:
 - Updates
 win_update_shutdown_timeout: 1200
 win_update_reboot_timeout: 1200
+win_update_list_updates_only: True                         # will output json file, one per host, to ~/pending_updates
 
 # win-services variables
 win_services: false                                        # runs win-services role; verifies/starts defined services
